@@ -1,0 +1,23 @@
+.flex {
+  display: flex;
+
+  &-a_c {
+    @extend .flex;
+    align-items: center;
+  }
+
+  &-j_c {
+    @extend .flex;
+    justify-content: center;
+  }
+
+  &-a-j_c {
+    @extend .flex-a_c;
+    @extend .flex-j_c;
+  }
+
+  &-d_c {
+    @extend .flex;
+    flex-direction: column;
+  }
+}

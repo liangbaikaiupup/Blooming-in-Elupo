@@ -1,0 +1,193 @@
+<template>
+    <div class="eye-container" id="eye-anthor">
+        <div class="g-container" id="element">
+            <div class="border"></div>
+            <div class="border-particle"></div>
+            <div class="circle"></div>
+        </div>
+
+        <svg width="0">
+            <filter id="particle">
+                <feTurbulence id="animation" type="fractalNoise" baseFrequency="9.9999999 9.9999999" numOctaves="10"
+                    result="warp">
+                    <animate attributeName="baseFrequency" from="9.9999999 9.9999999" to="0.01 0.0001" dur="2s"
+                        repeatCount="indefinite" />
+                </feTurbulence>
+                <feOffset dx="-90" dy="-90" result="warpOffset"></feOffset>
+                <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="100" in="SourceGraphic"
+                    in2="warpOffset"></feDisplacementMap>
+            </filter>
+        </svg>
+    </div>
+</template>
+
+<script lang="ts" setup>
+import { onMounted, ref } from 'vue';
+
+const multiple = ref(10)
+
+
+const eyeBode = ref()
+const element=ref()
+
+onMounted(() => {
+    element.value = document.getElementById("element") as HTMLElement;
+    eyeBode.value = document.getElementById("eye-anthor") as HTMLElement
+    eyeBode.value.addEventListener('mousemove', (e: any) => {
+        window.requestAnimationFrame(function () {
+            transformElement(e.clientX, e.clientY);
+        });
+    });
+})
+
+function transformElement(x: any, y: any) {
+    let box = element.value.getBoundingClientRect();
+    let calcX = -(y - box.y - (box.height / 2)) / multiple.value;
+    let calcY = (x - box.x - (box.width / 2)) / multiple.value;
+
+    element.value.style.transform = "rotateX(" + calcX + "deg) " + "rotateY(" + calcY + "deg)";
+}
+
+// document.getElementsByTagName("body")[0].addEventListener('mousemove', (e) => {
+//     window.requestAnimationFrame(function () {
+//         transformElement(e.clientX, e.clientY);
+//     });
+// });
+</script>
+
+<style lang="scss" scoped>
+.eye-container {
+    width: 100%;
+    height: 100%;
+
+    --mainColor: #02ffff;
+
+    display: flex;
+    transform-style: preserve-3d;
+    perspective: 500px;
+    background: #000;
+    overflow: hidden;
+}
+
+// html,
+// body {
+//     width: 100%;
+//     height: 100%;
+// }
+
+@property --height {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 1px;
+}
+
+// :root {
+//     --mainColor: #02ffff;
+// }
+
+// body {
+//     display: flex;
+//     transform-style: preserve-3d;
+//     perspective: 500px;
+//     background: #000;
+//     overflow: hidden;
+// }
+
+.g-container {
+    position: relative;
+    margin: auto;
+    width: 300px;
+    height: 300px;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    // transition: .1s;
+
+    &:hover .border-particle {
+        filter: url('#particle');
+    }
+}
+
+.border-particle {
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, -20px);
+    transform-style: preserve-3d;
+    transition: 0 .2s;
+
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 300px;
+        height: 300px;
+        border: 15px solid #ed243c;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.border {
+    position: relative;
+    height: 300px;
+    border-radius: 50%;
+    border: 10px solid #02ffff;
+    box-shadow: inset 0 0 0 5px #2968d9;
+    box-sizing: border-box;
+}
+
+.circle {
+    --height: 1px;
+    position: absolute;
+    width: 5px;
+    height: var(--height);
+    --halfHeight: calc((var(--height) + 35px) / 2);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% - var(--halfHeight)));
+    color: var(--mainColor);
+    border-top: 35px solid currentColor;
+    transform-origin: 50% 100%;
+    -webkit-box-reflect: below;
+    filter: drop-shadow(0 0 10px #2968d9);
+    animation: rotate 10s infinite ease-in-out;
+
+    &::before,
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 5px;
+        height: inherit;
+        border-top: 35px solid currentColor;
+        transform-origin: 50% 100%;
+        -webkit-box-reflect: below;
+    }
+
+    &::after {
+        transform: rotate(60deg);
+    }
+
+    &::before {
+        transform: rotate(120deg);
+    }
+}
+
+
+@keyframes rotate {
+    50% {
+        --height: 50px;
+        filter: drop-shadow(0 0 10px #2968d9) hue-rotate(360deg);
+        transform: translate(-50%, calc(-50% - var(--halfHeight))) rotate(1080deg) translateZ(30px);
+    }
+
+    100% {
+        transform: translate(-50%, calc(-50% - var(--halfHeight))) rotate(2160deg) translateZ(0px);
+    }
+}
+</style>
